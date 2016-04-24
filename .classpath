@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/common/hadoop-common-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/common/hadoop-common-2.6.0-tests.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/common/hadoop-nfs-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.6.0-tests.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.6.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
