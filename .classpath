@@ -14,5 +14,6 @@
 	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.6.0-tests.jar"/>
 	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.0.jar"/>
+	<classpathentry kind="lib" path="/home/neagaze/workspace/Dijkstra/libs/commons-logging-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

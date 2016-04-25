@@ -10,6 +10,7 @@ public static enum Color {WHITE, GRAY, BLACK};
   private int parent = Integer.MAX_VALUE;
   private int distance = Integer.MAX_VALUE;
   private List<Integer> edges = null;
+  private List<Integer> weights = null;
   private Color color = Color.WHITE;
   
   public Node(int id) {
@@ -17,22 +18,46 @@ public static enum Color {WHITE, GRAY, BLACK};
   }
   
   public Node(String str) {
-	  String[] sepStrings = str.split("\t");
-	  id = Integer.parseInt(sepStrings[0]);
-	  String valueString = sepStrings[1];
-	  
-	  String[] params = valueString.split("|"); 
-	  String[] toEdges = params[0].split(",");
 	  edges = new ArrayList<Integer>();
-	  for(String aString : toEdges) {
-		  edges.add(Integer.parseInt(aString));
+	  weights = new ArrayList<Integer>();
+	  
+	  String[] sepStrings = str.split("\t"); //sepStrings format: 1 2,3|10,5|0|GRAY
+	  
+	  // for id param
+	  id = Integer.parseInt(sepStrings[0]);
+	  
+	  String valueString = sepStrings[1]; // valueString format: 2,3|10,5|0|GRAY
+	  
+	  // for edges param
+	  String[] params = valueString.split("_");  // param[0] format: 2,3
+	  											 // param[1] format: 10,5
+	  											 // param[2] format: 0
+		 										 // param[3] format: GRAY
+	  
+	  if(!params[0].isEmpty()) {
+		  String[] toEdges = params[0].split(",");	// toEdges[0] format: 2 and toEdges[1] format: 3
+	  	  for(String aString : toEdges) {			
+	  		  edges.add(Integer.parseInt(aString));
+	  	  }
 	  }
-	  distance = Integer.parseInt(params[1]);
-	  if(params[2].equals("WHITE"))
+	  
+	  // for weights param
+	  if(!params[1].isEmpty()) {
+		  	String[] toEdges1 = params[1].split(","); // toEdges1[0] format: 10 and toEdges1[1] format: 5	  
+	  		for(String aString : toEdges1) {
+	  			weights.add(Integer.parseInt(aString));
+	  		}
+	  }
+	  
+	  // for distance param
+	  distance = Integer.parseInt(params[2]);
+
+	  // for color param
+	  if(params[3].equals("WHITE"))
 		  color = Color.WHITE;
-	  else if(params[2].equals("GRAY"))
+	  else if(params[3].equals("GRAY"))
 		  color = Color.GRAY;
-	  else if(params[2].equals("BLACK"))
+	  else if(params[3].equals("BLACK"))
 		  color = Color.BLACK;
   }
   
@@ -73,8 +98,46 @@ public static enum Color {WHITE, GRAY, BLACK};
     this.edges = vertices;
   }
   
+  public List<Integer> getWeights(){
+    return this.weights;
+  }
+  
+  public void setWeights(List<Integer> vertices) {
+    this.weights = vertices;
+  }
+  
   public String getLine() {
-	  	return "";
+	  	return listToString(edges) + "_" + listToString(weights) + "_" + distance + "_" + colorToString(color);
+  }
+  
+  public String colorToString(Color color) {
+	  if(color == Color.WHITE)
+		  return "WHITE";
+	  
+	  if(color == Color.GRAY)
+		  return "GRAY";
+	  
+	  if(color == Color.BLACK)
+		  return "BLACK";
+	  return "";
+  }
+  
+  public String listToString(List<Integer> values) {
+	  StringBuilder edgesString = new StringBuilder();
+	  
+	  if(values == null)
+		  return "";
+	  
+	  for(int edge : values) {
+		  edgesString.append(edge);
+		  edgesString.append(",");
+	  }
+	  String str = edgesString.toString();
+	  
+	  if (str != null && str.length() > 0 && str.charAt(str.length()-1)==',') {
+	      str = str.substring(0, str.length()-1);
+	    }
+	  return str;
   }
   
 }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -49,10 +51,12 @@ public class RoadNetwork extends Configured implements Tool {
 
       // For each GRAY node, emit each of the edges as a new node (also GRAY)
       if (node.getColor() == Node.Color.GRAY) {
+    	int i = 0;
         for (int v : node.getEdges()) {
           Node vnode = new Node(v);
-          vnode.setDistance(node.getDistance() + 1);
+          vnode.setDistance(node.getDistance() + 1/*node.getWeights().get(i)*/);
           vnode.setColor(Node.Color.GRAY);
+          i++;
           output.collect(new IntWritable(vnode.getId()), new Text(vnode.getLine()));
         }
         // We're done with this node now, color it BLACK
@@ -71,7 +75,7 @@ public class RoadNetwork extends Configured implements Tool {
    */
   public static class Reduce extends MapReduceBase implements
       Reducer<IntWritable, Text, IntWritable, Text> {
-
+	  public static final Log log = LogFactory.getLog(Reduce.class);
     /**
      * Make a new node which combines all information for this single node id.
      * The new node should have 
@@ -83,12 +87,13 @@ public class RoadNetwork extends Configured implements Tool {
         OutputCollector<IntWritable, Text> output, Reporter reporter) throws IOException {
 
       List<Integer> edges = null;
+      List<Integer> weights = null;
       int distance = Integer.MAX_VALUE;
       Node.Color color = Node.Color.WHITE;
 
       while (values.hasNext()) {
         Text value = values.next();
-
+        System.out.println("reducer key: "+key.get() + ", values: " + value.toString() +"\n");
         Node u = new Node(key.get() + "\t" + value.toString());
 
         // One (and only one) copy of the node will be the fully expanded
@@ -96,7 +101,11 @@ public class RoadNetwork extends Configured implements Tool {
         if (u.getEdges().size() > 0) {
           edges = u.getEdges();
         }
-
+        
+        if (u.getWeights().size() > 0) {
+            weights = u.getWeights();
+          }
+        
         // Save the minimum distance
         if (u.getDistance() < distance) {
           distance = u.getDistance();
@@ -112,6 +121,7 @@ public class RoadNetwork extends Configured implements Tool {
       Node n = new Node(key.get());
       n.setDistance(distance);
       n.setEdges(edges);
+      n.setWeights(weights);
       n.setColor(color);
       output.collect(key, new Text(n.getLine()));
      
@@ -162,11 +172,11 @@ public class RoadNetwork extends Configured implements Tool {
 
       String input;
       if (iterationCount == 0)
-        input = "input-graph";
+        input = "db3_input/test.txt";
       else
-        input = "output-graph-" + iterationCount;
+        input = "db3_output--" + iterationCount;
 
-      String output = "output-graph-" + (iterationCount + 1);
+      String output = "db3_output--" + (iterationCount + 1);
 
       JobConf conf = getJobConf(args);
       FileInputFormat.setInputPaths(conf, new Path(input));
