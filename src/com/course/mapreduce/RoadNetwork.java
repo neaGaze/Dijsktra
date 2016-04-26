@@ -34,6 +34,9 @@ import org.apache.hadoop.util.ToolRunner;
 */
 public class RoadNetwork extends Configured implements Tool {
 	
+	public static final String INPUT_FILE_LOCATION = "db3_input/test.txt";
+	public static final String OUTPUT_FILE_LOCATION = "db3_output--";
+	
   //public static final Log LOG = LogFactory.getLog("org.apache.hadoop.examples.GraphSearch");
 
   /**
@@ -54,7 +57,7 @@ public class RoadNetwork extends Configured implements Tool {
     	int i = 0;
         for (int v : node.getEdges()) {
           Node vnode = new Node(v);
-          vnode.setDistance(node.getDistance() + 1/*node.getWeights().get(i)*/);
+          vnode.setDistance(node.getDistance() + node.getWeights().get(i));
           vnode.setColor(Node.Color.GRAY);
           i++;
           output.collect(new IntWritable(vnode.getId()), new Text(vnode.getLine()));
@@ -158,7 +161,7 @@ public class RoadNetwork extends Configured implements Tool {
   }
 
   /**
-   * The main driver for word count map/reduce program. Invoke this method to
+   * The main driver for the map/reduce program. Invoke this method to
    * submit the map/reduce job.
    * 
    * @throws IOException
@@ -172,11 +175,11 @@ public class RoadNetwork extends Configured implements Tool {
 
       String input;
       if (iterationCount == 0)
-        input = "db3_input/test.txt";
+        input = INPUT_FILE_LOCATION;
       else
-        input = "db3_output--" + iterationCount;
+        input = OUTPUT_FILE_LOCATION + iterationCount;
 
-      String output = "db3_output--" + (iterationCount + 1);
+      String output = OUTPUT_FILE_LOCATION + (iterationCount + 1);
 
       JobConf conf = getJobConf(args);
       FileInputFormat.setInputPaths(conf, new Path(input));
