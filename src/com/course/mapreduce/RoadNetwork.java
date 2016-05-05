@@ -53,11 +53,13 @@ public class RoadNetwork extends Configured implements Tool {
       Node node = new Node(value.toString());
 
       // For each GRAY node, emit each of the edges as a new node (also GRAY)
-      if (node.getColor() == Node.Color.GRAY) {
+      if (node.getColor() != Node.Color.WHITE) {
     	int i = 0;
         for (int v : node.getEdges()) {
           Node vnode = new Node(v);
+          if(vnode.getDistance()>(node.getDistance() + node.getWeights().get(i))) {
           vnode.setDistance(node.getDistance() + node.getWeights().get(i));
+          }
           vnode.setColor(Node.Color.GRAY);
           i++;
           output.collect(new IntWritable(vnode.getId()), new Text(vnode.getLine()));
