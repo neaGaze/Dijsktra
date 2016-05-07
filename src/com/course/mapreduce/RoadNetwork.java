@@ -38,7 +38,7 @@ public class RoadNetwork extends Configured implements Tool {
 
 	public static boolean IS_ALL_BLACK = false;
 	
-	public static final String INPUT1_FILE_LOCATION = "db3_input/test.txt";
+	public static final String INPUT1_FILE_LOCATION = "db3_input/raw.txt";
 //	public static final String INPUT1_FILE_LOCATION = "db3_input/input2.txt";
 	public static final String OUTPUT_FILE_LOCATION = "db3_output--";
 	public static final String OUTPUT1_FILE_LOCATION = "db3_input/test.txt";
@@ -62,7 +62,7 @@ public class RoadNetwork extends Configured implements Tool {
 
 			// For each GRAY node, emit each of the edges as a new node (also
 			// GRAY)
-			if (node.getColor() == Node.Color.GRAY) {
+			if (node.getColor() != Node.Color.WHITE) {
 				int i = 0;
 				for (int v : node.getEdges()) {
 					Node vnode = new Node(v);
@@ -174,12 +174,13 @@ public class RoadNetwork extends Configured implements Tool {
 				OutputCollector<LongWritable, Text> output, Reporter reporter)
 				throws IOException {
 
+		//	System.out.println("******1******\n");
 			String color = "WHITE";
 			int dist = Integer.MAX_VALUE;
 			
 			StringBuilder edgeBuilder = new StringBuilder();
 			StringBuilder weightBuilder = new StringBuilder();
-			
+
 			while (values.hasNext()) {
 				Text value = values.next();
 				
@@ -187,9 +188,10 @@ public class RoadNetwork extends Configured implements Tool {
 				if(value.toString().equals("s")) {
 					color = "GRAY";
 					dist = 0;
+
 					continue;
 				}
-				
+
 				// find all the destination and weights 
 				String[] id = value.toString().split("\\s+");
 				if (id.length > 0) {
@@ -210,7 +212,7 @@ public class RoadNetwork extends Configured implements Tool {
 				weight = weight.substring(0, weight.length() - 1);
 
 			String  valueString = edge + "_" + weight + "_" + dist + "_" + color;
-		//	System.out.println("Key: " + key + ", value: " + valueString +"\n");
+			System.out.println("Key: " + key + ", value: " + valueString +"\n");
 			output.collect(key, new Text(valueString));
 		}
 	}
@@ -279,9 +281,12 @@ public class RoadNetwork extends Configured implements Tool {
 	 */
 	public int run(String[] args) throws Exception {
 
+		// for the second round of map-red
+		int iterationCount = 0;
+		
 		// To first convert raw data into adjacency Lists
 		String ip = INPUT1_FILE_LOCATION;
-		String op = OUTPUT_FILE_LOCATION;
+		String op = OUTPUT_FILE_LOCATION + iterationCount;
 		
 		JobConf initConf = getAdjacencyConf(args);
 		FileInputFormat.setInputPaths(initConf, new Path(ip));
@@ -289,14 +294,12 @@ public class RoadNetwork extends Configured implements Tool {
 		RunningJob job1 = JobClient.runJob(initConf);
 		job1.waitForCompletion();
 		
-		// for the second round of map-red
-		int iterationCount = 0;
 
 		while (keepGoing(iterationCount)) {			
 			IS_ALL_BLACK = true;
 			
 			String input;
-			if (iterationCount == 0)
+			if (false && iterationCount == 0)
 				input = INPUT1_FILE_LOCATION;
 			else
 				input = OUTPUT_FILE_LOCATION + iterationCount;
