@@ -1,2 +1,4 @@
 output*
 bin/com/course/mapreduce/RoadNetwork.class
+bin/com/course/mapreduce/RoadNetwork$AdjacencyMap.class
+bin/com/course/mapreduce/RoadNetwork$AdjacencyReduce.class
