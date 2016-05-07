@@ -67,8 +67,8 @@ public class RoadNetwork extends Configured implements Tool {
 				int i = 0;
 				for (int v : node.getEdges()) {
 					Node vnode = new Node(v);
-					if (vnode.getDistance() > (node.getDistance() + node
-							.getWeights().get(i))) {
+					if (vnode.getDistance() > (node.getDistance() + node.getWeights().get(i))) 
+					{
 						vnode.setDistance(node.getDistance()
 								+ node.getWeights().get(i));
 					}
@@ -178,6 +178,7 @@ public class RoadNetwork extends Configured implements Tool {
 				OutputCollector<LongWritable, Text> output, Reporter reporter)
 				throws IOException {
 
+		//	System.out.println("******1******\n");
 			String color = "WHITE";
 			int dist = Integer.MAX_VALUE;
 
@@ -191,10 +192,12 @@ public class RoadNetwork extends Configured implements Tool {
 				if (value.toString().equals("s")) {
 					color = "GRAY";
 					dist = 0;
+
 					continue;
 				}
 
 				// find all the destination and weights
+
 				String[] id = value.toString().split("\\s+");
 				if (id.length > 0) {
 					edgeBuilder.append(id[0]).append(",");
@@ -213,9 +216,10 @@ public class RoadNetwork extends Configured implements Tool {
 					&& weight.charAt(weight.length() - 1) == ',')
 				weight = weight.substring(0, weight.length() - 1);
 
-			String valueString = edge + "_" + weight + "_" + dist + "_" + color;
-			// System.out.println("Key: " + key + ", value: " + valueString
-			// +"\n");
+
+			String  valueString = edge + "_" + weight + "_" + dist + "_" + color;
+			System.out.println("Key: " + key + ", value: " + valueString +"\n");
+
 			output.collect(key, new Text(valueString));
 		}
 	}
@@ -293,24 +297,24 @@ public class RoadNetwork extends Configured implements Tool {
 	 */
 	public int run(String[] args) throws Exception {
 
+		// for the second round of map-red
+		int iterationCount = 0;
+		
 		// To first convert raw data into adjacency Lists
 		String ip = INPUT1_FILE_LOCATION;
-		String op = OUTPUT_FILE_LOCATION;
-
+		String op = OUTPUT_FILE_LOCATION + iterationCount;
+		
 		JobConf initConf = getAdjacencyConf(args);
 		FileInputFormat.setInputPaths(initConf, new Path(ip));
 		FileOutputFormat.setOutputPath(initConf, new Path(op));
 		RunningJob job1 = JobClient.runJob(initConf);
 		job1.waitForCompletion();
 
-		// for the second round of map-red
-		int iterationCount = 0;
-
 		while (keepGoing(iterationCount)) {
 			IS_ALL_BLACK = true;
 
 			String input;
-			if (iterationCount == 0)
+			if (false && iterationCount == 0)
 				input = INPUT1_FILE_LOCATION;
 			else
 				input = OUTPUT_FILE_LOCATION + iterationCount;
