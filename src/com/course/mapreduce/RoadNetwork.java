@@ -53,35 +53,45 @@ public class RoadNetwork extends Configured implements Tool {
 	 * by one. The Color.GRAY node is then colored black and is also emitted.
 	 */
 	public static class MapClass extends MapReduceBase implements
-    Mapper<LongWritable, Text, IntWritable, Text> {
+			Mapper<LongWritable, Text, IntWritable, Text> {
 
-  public void map(LongWritable key, Text value, OutputCollector<IntWritable, Text> output,
-      Reporter reporter) throws IOException {
+		public void map(LongWritable key, Text value,
+				OutputCollector<IntWritable, Text> output, Reporter reporter)
+				throws IOException {
 
-    Node node = new Node(value.toString());
+			Node node = new Node(value.toString());
 
-    // For each GRAY node, emit each of the edges as a new node (also GRAY)
-    if (node.getColor() != Node.Color.WHITE) {
-  	int i = 0;
-      for (int v : node.getEdges()) {
-        Node vnode = new Node(v);
-        if(vnode.getDistance()>(node.getDistance() + node.getWeights().get(i))) {
-        vnode.setDistance(node.getDistance() + node.getWeights().get(i));
-        }
-        vnode.setColor(Node.Color.GRAY);
-        i++;
-        output.collect(new IntWritable(vnode.getId()), new Text(vnode.getLine()));
-      }
-      // We're done with this node now, color it BLACK
-      node.setColor(Node.Color.BLACK);
-    }
+			// For each GRAY node, emit each of the edges as a new node (also
+			// GRAY)
+			if (node.getColor() != Node.Color.WHITE) {
+				int i = 0;
+				for (int v : node.getEdges()) {
+					Node vnode = new Node(v);
+					if (vnode.getDistance() > (node.getDistance() + node
+							.getWeights().get(i))) {
+						vnode.setDistance(node.getDistance()
+								+ node.getWeights().get(i));
+					}
+					if(vnode.getColor() == Node.Color.WHITE)
+					{
+					vnode.setColor(Node.Color.GRAY);
+					}
+					i++;
+					output.collect(new IntWritable(vnode.getId()), new Text(
+							vnode.getLine()));
+				}
+				// We're done with this node now, color it BLACK
+				node.setColor(Node.Color.BLACK);
+			}
 
-    // No matter what, we emit the input node
-    // If the node came into this method GRAY, it will be output as BLACK
-    output.collect(new IntWritable(node.getId()), new Text(node.getLine()));
+			// No matter what, we emit the input node
+			// If the node came into this method GRAY, it will be output as
+			// BLACK
+			output.collect(new IntWritable(node.getId()),
+					new Text(node.getLine()));
 
-  }
-}
+		}
+	}
 
 	/**
 	 * A reducer class that just emits the shortest distance
@@ -103,11 +113,11 @@ public class RoadNetwork extends Configured implements Tool {
 			List<Integer> weights = null;
 			int distance = Integer.MAX_VALUE;
 			Node.Color color = Node.Color.WHITE;
+			Node.Color darkestColor = Node.Color.WHITE;
 
 			while (values.hasNext()) {
 				Text value = values.next();
-				// System.out.println("reducer key: " + key.get() + ", values: "
-				// + value.toString() + "\n");
+				 System.out.println("reducer key: " + key.get() + ", values: " + value.toString() + "\n");
 				Node u = new Node(key.get() + "\t" + value.toString());
 
 				if (u.getEdges().size() > 0) {
@@ -127,11 +137,13 @@ public class RoadNetwork extends Configured implements Tool {
 				if (u.getColor().ordinal() > color.ordinal()) {
 					color = u.getColor();
 				}
-
-				if (color != Color.BLACK)
-					IS_ALL_BLACK = false;
+				
+				System.out.println("color: "+color+ ", "+u.getColor().ordinal() +"> "+color.ordinal() +"??, TERMINATION CONDITION: "+IS_ALL_BLACK+"\n");
 			}
 
+			if (color != Color.BLACK)
+				IS_ALL_BLACK = false;
+			
 			Node n = new Node(key.get());
 			n.setDistance(distance);
 			n.setEdges(edges);
@@ -171,7 +183,7 @@ public class RoadNetwork extends Configured implements Tool {
 				OutputCollector<LongWritable, Text> output, Reporter reporter)
 				throws IOException {
 
-		//	System.out.println("******1******\n");
+			// System.out.println("******1******\n");
 			String color = "WHITE";
 			int dist = Integer.MAX_VALUE;
 
@@ -209,9 +221,9 @@ public class RoadNetwork extends Configured implements Tool {
 					&& weight.charAt(weight.length() - 1) == ',')
 				weight = weight.substring(0, weight.length() - 1);
 
-
-			String  valueString = edge + "_" + weight + "_" + dist + "_" + color;
-			System.out.println("Key: " + key + ", value: " + valueString +"\n");
+			String valueString = edge + "_" + weight + "_" + dist + "_" + color;
+			System.out
+					.println("Key: " + key + ", value: " + valueString + "\n");
 
 			output.collect(key, new Text(valueString));
 		}
@@ -292,11 +304,11 @@ public class RoadNetwork extends Configured implements Tool {
 
 		// for the second round of map-red
 		int iterationCount = 0;
-		
+
 		// To first convert raw data into adjacency Lists
 		String ip = INPUT1_FILE_LOCATION;
 		String op = OUTPUT_FILE_LOCATION + iterationCount;
-		
+
 		JobConf initConf = getAdjacencyConf(args);
 		FileInputFormat.setInputPaths(initConf, new Path(ip));
 		FileOutputFormat.setOutputPath(initConf, new Path(op));
@@ -334,8 +346,8 @@ public class RoadNetwork extends Configured implements Tool {
 
 		if (IS_ALL_BLACK)
 			return false;
-
-		return true;
+		else
+			return true;
 	}
 
 	public static void main(String[] args) throws Exception {
