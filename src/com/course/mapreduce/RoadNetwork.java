@@ -53,42 +53,35 @@ public class RoadNetwork extends Configured implements Tool {
 	 * by one. The Color.GRAY node is then colored black and is also emitted.
 	 */
 	public static class MapClass extends MapReduceBase implements
-			Mapper<LongWritable, Text, IntWritable, Text> {
+    Mapper<LongWritable, Text, IntWritable, Text> {
 
-		public void map(LongWritable key, Text value,
-				OutputCollector<IntWritable, Text> output, Reporter reporter)
-				throws IOException {
+  public void map(LongWritable key, Text value, OutputCollector<IntWritable, Text> output,
+      Reporter reporter) throws IOException {
 
-			Node node = new Node(value.toString());
+    Node node = new Node(value.toString());
 
-			// For each GRAY node, emit each of the edges as a new node (also
-			// GRAY)
-			if (node.getColor() != Node.Color.WHITE) {
-				int i = 0;
-				for (int v : node.getEdges()) {
-					Node vnode = new Node(v);
-					if (vnode.getDistance() > (node.getDistance() + node.getWeights().get(i))) 
-					{
-						vnode.setDistance(node.getDistance()
-								+ node.getWeights().get(i));
-					}
-					vnode.setColor(Node.Color.GRAY);
-					i++;
-					output.collect(new IntWritable(vnode.getId()), new Text(
-							vnode.getLine()));
-				}
-				// We're done with this node now, color it BLACK
-				node.setColor(Node.Color.BLACK);
-			}
+    // For each GRAY node, emit each of the edges as a new node (also GRAY)
+    if (node.getColor() != Node.Color.WHITE) {
+  	int i = 0;
+      for (int v : node.getEdges()) {
+        Node vnode = new Node(v);
+        if(vnode.getDistance()>(node.getDistance() + node.getWeights().get(i))) {
+        vnode.setDistance(node.getDistance() + node.getWeights().get(i));
+        }
+        vnode.setColor(Node.Color.GRAY);
+        i++;
+        output.collect(new IntWritable(vnode.getId()), new Text(vnode.getLine()));
+      }
+      // We're done with this node now, color it BLACK
+      node.setColor(Node.Color.BLACK);
+    }
 
-			// No matter what, we emit the input node
-			// If the node came into this method GRAY, it will be output as
-			// BLACK
-			output.collect(new IntWritable(node.getId()),
-					new Text(node.getLine()));
+    // No matter what, we emit the input node
+    // If the node came into this method GRAY, it will be output as BLACK
+    output.collect(new IntWritable(node.getId()), new Text(node.getLine()));
 
-		}
-	}
+  }
+}
 
 	/**
 	 * A reducer class that just emits the shortest distance
