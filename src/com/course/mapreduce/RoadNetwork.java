@@ -34,7 +34,7 @@ import org.apache.hadoop.util.ToolRunner;
 */
 public class RoadNetwork extends Configured implements Tool {
 	
-	public static final String INPUT_FILE_LOCATION = "db3_input/test.txt";
+	public static final String INPUT_FILE_LOCATION = "db3_input/data_1000.txt";
 	public static final String OUTPUT_FILE_LOCATION = "db3_output--";
 	
   //public static final Log LOG = LogFactory.getLog("org.apache.hadoop.examples.GraphSearch");
