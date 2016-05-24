@@ -20,26 +20,13 @@ import org.apache.hadoop.util.ToolRunner;
 
 import com.course.mapreduce.Node.Color;
 
-/**
- * This is an example Hadoop Map/Reduce application.
- * 
- * It inputs a map in adjacency list format, and performs a breadth-first
- * search. The input format is ID EDGES_WEIGHTS_DISTANCE|_COLOR where ID = the
- * unique identifier for a node (assumed to be an int here) EDGES = the list of
- * edges emanating from the node (e.g. 3,8,9,12) DISTANCE = the to be determined
- * distance of the node from the source COLOR = a simple status tracking field
- * to keep track of when we're finished with a node
- * 
- * It assumes that the source node (the node from which to start the search) has
- * been marked with distance 0 and color GRAY in the original input. All other
- * nodes will have input distance Integer.MAX_VALUE and color WHITE.
- */
+
 public class RoadNetwork extends Configured implements Tool {
 
 	public static boolean IS_ALL_BLACK = false;
 
-	public static final String INPUT1_FILE_LOCATION = "db3_input/raw.txt";
-	// public static final String INPUT1_FILE_LOCATION = "db3_input/input2.txt";
+	//public static final String INPUT1_FILE_LOCATION = "db3_input/data_1000.txt";
+	 public static final String INPUT1_FILE_LOCATION = "db3_input/input2.txt";
 
 	public static final String OUTPUT_FILE_LOCATION = "db3_output--";
 	public static final String OUTPUT1_FILE_LOCATION = "db3_input/test.txt";
@@ -113,11 +100,10 @@ public class RoadNetwork extends Configured implements Tool {
 			List<Integer> weights = null;
 			int distance = Integer.MAX_VALUE;
 			Node.Color color = Node.Color.WHITE;
-			Node.Color darkestColor = Node.Color.WHITE;
 
 			while (values.hasNext()) {
 				Text value = values.next();
-				 System.out.println("reducer key: " + key.get() + ", values: " + value.toString() + "\n");
+				 //System.out.println("reducer key: " + key.get() + ", values: " + value.toString() + "\n");
 				Node u = new Node(key.get() + "\t" + value.toString());
 
 				if (u.getEdges().size() > 0) {
@@ -138,7 +124,7 @@ public class RoadNetwork extends Configured implements Tool {
 					color = u.getColor();
 				}
 				
-				System.out.println("color: "+color+ ", "+u.getColor().ordinal() +"> "+color.ordinal() +"??, TERMINATION CONDITION: "+IS_ALL_BLACK+"\n");
+				//System.out.println("color: "+color+ ", "+u.getColor().ordinal() +"> "+color.ordinal() +"??, TERMINATION CONDITION: "+IS_ALL_BLACK+"\n");
 			}
 
 			if (color != Color.BLACK)
@@ -183,7 +169,6 @@ public class RoadNetwork extends Configured implements Tool {
 				OutputCollector<LongWritable, Text> output, Reporter reporter)
 				throws IOException {
 
-			// System.out.println("******1******\n");
 			String color = "WHITE";
 			int dist = Integer.MAX_VALUE;
 
@@ -222,16 +207,12 @@ public class RoadNetwork extends Configured implements Tool {
 				weight = weight.substring(0, weight.length() - 1);
 
 			String valueString = edge + "_" + weight + "_" + dist + "_" + color;
-			System.out
-					.println("Key: " + key + ", value: " + valueString + "\n");
 
 			output.collect(key, new Text(valueString));
 		}
 	}
 
 	static int printUsage() {
-		System.out
-				.println("graphsearch [-m <num mappers>] [-r <num reducers>]");
 		ToolRunner.printGenericCommandUsage(System.out);
 		return -1;
 	}
@@ -260,14 +241,7 @@ public class RoadNetwork extends Configured implements Tool {
 		return conf;
 	}
 
-	// public static final Log LOG =
-	// LogFactory.getLog("org.apache.hadoop.examples.GraphSearch");
-
-	/**
-	 * Nodes that are Color.WHITE or Color.BLACK are emitted, as is. For every
-	 * edge of a Color.GRAY node, we emit a new Node with distance incremented
-	 * by one. The Color.GRAY node is then colored black and is also emitted.
-	 */
+	
 
 	/**
 	 * For the Dijkstra configuration
@@ -275,34 +249,23 @@ public class RoadNetwork extends Configured implements Tool {
 	private JobConf getJobConf(String[] args) {
 		JobConf conf = new JobConf(getConf(), RoadNetwork.class);
 		conf.setJobName("graphsearch");
-
 		conf.setOutputKeyClass(IntWritable.class);
 		conf.setOutputValueClass(Text.class);
 
 		conf.setMapperClass(MapClass.class);
 		conf.setReducerClass(Reduce.class);
+		conf.setNumMapTasks(2);
+		conf.setNumReduceTasks(2);
 
-		for (int i = 0; i < args.length; ++i) {
-			if ("-m".equals(args[i])) {
-				conf.setNumMapTasks(Integer.parseInt(args[++i]));
-			} else if ("-r".equals(args[i])) {
-				conf.setNumReduceTasks(Integer.parseInt(args[++i]));
-			}
-		}
 
 		return conf;
 	}
 
-	/**
-	 * The main driver for the map/reduce program. Invoke this method to submit
-	 * the map/reduce job.
-	 * 
-	 * @throws IOException
-	 *             When there is communication problems with the job tracker.
-	 */
+	/*
+	 * The runner main program
+	 * **/
 	public int run(String[] args) throws Exception {
 
-		// for the second round of map-red
 		int iterationCount = 0;
 
 		// To first convert raw data into adjacency Lists
@@ -319,10 +282,7 @@ public class RoadNetwork extends Configured implements Tool {
 			IS_ALL_BLACK = true;
 
 			String input;
-			if (false && iterationCount == 0)
-				input = INPUT1_FILE_LOCATION;
-			else
-				input = OUTPUT_FILE_LOCATION + iterationCount;
+			input = OUTPUT_FILE_LOCATION + iterationCount;
 
 			String output = OUTPUT_FILE_LOCATION + (iterationCount + 1);
 
@@ -332,17 +292,12 @@ public class RoadNetwork extends Configured implements Tool {
 			RunningJob job = JobClient.runJob(conf);
 
 			iterationCount++;
-
-			System.out.println("\nIS ALL BLACK ? " + IS_ALL_BLACK + "\n");
 		}
 
 		return 0;
 	}
 
 	private boolean keepGoing(int iterationCount) {
-		/*
-		 * if (iterationCount >= 4) { return false; }
-		 */
 
 		if (IS_ALL_BLACK)
 			return false;
